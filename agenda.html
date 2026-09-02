@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda | Incluir+</title>
+    <meta
+      name="description"
+      content="Agenda pessoal para organizar horários, atividades e compromissos do dia a dia."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="theme.js" defer></script>
+    <script src="mouse-rain.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="mouse-rain" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="container nav">
+        <div class="brand">Incluir+</div>
+        <nav class="menu" aria-label="Menu principal">
+          <a href="index.html">Início</a>
+          <a href="agenda.html">Agenda</a>
+          <a href="index.html#sobre">Sobre</a>
+          <a href="index.html#beneficios">Benefícios</a>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema">🌙</button>
+      </div>
+    </header>
+
+    <main class="agenda-page">
+      <section class="agenda-book-section">
+        <div class="container book-wrapper">
+          <div class="book-panel">
+            <div class="book-header">
+              <p class="eyebrow">Rotina do dia</p>
+              <h1>Agenda visual</h1>
+            </div>
+
+            <div class="book-navigation">
+              <button id="prev-page" class="nav-btn" type="button" aria-label="Página anterior">Anterior</button>
+              <span id="page-indicator" class="page-indicator">Página 1 de 1</span>
+              <button id="next-page" class="nav-btn" type="button" aria-label="Próxima página">Próxima</button>
+            </div>
+
+            <div class="page-frame">
+              <div id="agenda-page" class="agenda-page-card" aria-live="polite"></div>
+              <div class="agenda-actions">
+                <button id="edit-current-task" class="btn btn-secondary" type="button">Editar</button>
+                <button id="delete-current-task" class="btn btn-primary" type="button">Excluir horário</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="planner-form-section">
+        <div class="container">
+          <div class="planner-form card-panel">
+            <h2 id="form-title">Adicionar compromisso</h2>
+            <form id="agenda-form">
+              <div class="field-group">
+                <label for="task-title">Atividade</label>
+                <input id="task-title" name="title" type="text" placeholder="Ex: Escola, banho, leitura" required />
+              </div>
+
+              <div class="field-row">
+                <div class="field-group">
+                  <label for="task-day">Dia</label>
+                  <select id="task-day" name="day" required>
+                    <option value="Segunda">Segunda</option>
+                    <option value="Terça">Terça</option>
+                    <option value="Quarta">Quarta</option>
+                    <option value="Quinta">Quinta</option>
+                    <option value="Sexta">Sexta</option>
+                    <option value="Sábado">Sábado</option>
+                    <option value="Domingo">Domingo</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="task-time">Horário</label>
+                  <input id="task-time" name="time" type="time" step="60" required />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="task-notes">Observações</label>
+                <textarea id="task-notes" name="notes" rows="4" placeholder="Ex: levar lanche, usar fones, repetir instruções"></textarea>
+              </div>
+
+              <div class="field-group">
+                <label for="alarm-sound">Som do alarme</label>
+                <select id="alarm-sound" name="alarmSound" aria-label="Escolha o som do alarme">
+                  <option value="C4">Dó (C4)</option>
+                  <option value="D4">Ré (D4)</option>
+                  <option value="E4">Mi (E4)</option>
+                  <option value="G4">Sol (G4)</option>
+                  <option value="A4">La (A4)</option>
+                  <option value="B4">Si (B4)</option>
+                  <option value="C5">Dó agudo (C5)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="alert-color">Cor do alerta</label>
+                <div class="color-picker-wrap">
+                  <input
+                    id="alert-color"
+                    name="alertColor"
+                    type="color"
+                    value="#ff7a7a"
+                    aria-label="Escolha a cor do alerta da agenda"
+                    class="alert-color-input"
+                  />
+                  <span class="color-picker-square" aria-hidden="true"></span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="button" id="cancel-edit" class="btn btn-secondary hidden">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <button id="manual-alert-btn" class="manual-alert-btn" type="button" aria-label="Ativar compromisso atual">
+      ⚑
+    </button>
+
+    <button id="dismiss-alarm-btn" class="dismiss-alarm-btn hidden" type="button" aria-label="Desligar alarme">
+      Desligar alarme
+    </button>
+
+    <footer class="footer">
+      <div class="container">
+        <p>Incluir+ • Rotina mais acessível para todos.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,31 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Incluir+</title>
-    <link rel="stylesheet" href="style.css"
-</head>
-<body>
-  <h1>Incluir+</h1>
-    <h2>Rotina Inteligente</h2>
-    <h3>uma rotina mais organizada,acessivel e inclusiva</h3>
-    <h4></h4>
-    
+    <meta
+      name="description"
+      content="Incluir+ é uma agenda virtual inclusiva para organizar rotina, atividades e compromissos de forma simples e acessível."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="theme.js" defer></script>
+    <script src="mouse-rain.js" defer></script>
+  </head>
+  <body>
+    <div class="mouse-rain" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="container nav">
+        <div class="brand">Incluir+</div>
+        <nav class="menu" aria-label="Menu principal">
+          <a href="#sobre">Sobre</a>
+          <a href="#beneficios">Benefícios</a>
+          <a href="agenda.html">Agenda</a>
+        </nav>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema">🌙</button>
+      </div>
+    </header>
 
-    <p>O Incluir+ é uma agenda virtual inclusiva desenvolvida para auxiliar na
-organização da rotina de crianças com TEA e outras deficiências.
-<br>
-A plataforma permite organizar horários, atividades e compromissos de
-forma simples,
-<br>
- visual e personalizada, contribuindo para uma rotina
-mais previsível e para o desenvolvimento da autonomia.</p>
+    <main>
+      <section class="hero">
+        <div class="container hero-content">
+          <div class="hero-text">
+            <p class="eyebrow">Rotina inteligente</p>
+            <h1>Uma rotina mais organizada, acessível e inclusiva.</h1>
+            <p class="lead">
+              O Incluir+ ajuda a estruturar atividades, horários e compromissos de
+              forma clara e personalizada, promovendo previsibilidade e autonomia.
+            </p>
+            <div class="actions">
+              <a class="btn btn-primary" href="agenda.html">Acessar agenda</a>
+              <a
+                class="btn btn-ghost"
+                href="https://blog.cordvida.com.br/agenda-para-criancas-o-que-e-melhor-ocupa-las-ou-deixa-las-livres/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Saiba mais
+              </a>
+            </div>
+          </div>
 
-<img src="Imagem pcd.jpg" alt="Símbolos representando diferentes tipos de deficiência e acessibilidade,incluindo libras,deficiência física,visual,auditiva e neurodiversidade"
-width="500" height="300">
-<br>
+          <div class="hero-visual">
+            <img
+              src="TEA.jpeg"
+              alt="Ilustração de uma criança abraçando peças de quebra-cabeça para representar organização, rotina e acolhimento."
+            />
+          </div>
+        </div>
+      </section>
 
-<a href="https://blog.cordvida.com.br/agenda-para-criancas-o-que-e-melhor-ocupa-las-ou-deixa-las-livres/">Por que uma agenda?</a>
-    </body>
-    </html>
+      <section id="sobre" class="about">
+        <div class="container">
+          <h2>Sobre o Incluir+</h2>
+          <p>
+            O Incluir+ é uma agenda virtual inclusiva desenvolvida para auxiliar na
+            organização da rotina de crianças com TEA e outras deficiências. A
+            plataforma permite organizar horários, atividades e compromissos de forma
+            simples, visual e personalizada, contribuindo para uma rotina mais
+            previsível e para o desenvolvimento da autonomia.
+          </p>
+        </div>
+      </section>
+
+      <section id="beneficios" class="features">
+        <div class="container">
+          <h2>Benefícios</h2>
+          <div class="cards">
+            <article class="card">
+              <h3>Organização</h3>
+              <p>Estrutura tarefas e compromissos em um só lugar, com menos confusão.</p>
+            </article>
+            <article class="card">
+              <h3>Previsibilidade</h3>
+              <p>Cria rotinas mais claras e tranquilas para o dia a dia da família.</p>
+            </article>
+            <article class="card">
+              <h3>Autonomia</h3>
+              <p>Ajuda na construção de hábitos e na participação ativa da criança.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>Incluir+ • Rotina mais acessível para todos.</p>
+      </div>
+    </footer>
+  </body>
+</html>
