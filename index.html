@@ -8,51 +8,60 @@
       name="description"
       content="Incluir+ é uma agenda virtual inclusiva para organizar rotina, atividades e compromissos de forma simples e acessível."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230f5c5a'/%3E%3Cpath d='M16 8v16M8 16h16' stroke='white' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E" />
     <script src="theme.js" defer></script>
-    <script src="mouse-rain.js" defer></script>
+    <script src="kinetic-grid.js" defer></script>
   </head>
   <body>
-    <div class="mouse-rain" aria-hidden="true"></div>
+    <canvas id="kinetic-grid" aria-hidden="true"></canvas>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
     <header class="topbar">
       <div class="container nav">
-        <div class="brand">Incluir+</div>
+        <a class="brand" href="index.html" aria-label="Incluir+, página inicial"><span class="brand-mark">+</span>Incluir</a>
         <nav class="menu" aria-label="Menu principal">
-          <a href="#sobre">Sobre</a>
+          <a href="#sobre">Como funciona</a>
           <a href="#beneficios">Benefícios</a>
-          <a href="agenda.html">Agenda</a>
+          <a class="nav-cta" href="agenda.html">Abrir agenda <span aria-hidden="true">↗</span></a>
         </nav>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema">🌙</button>
       </div>
     </header>
 
-    <main>
+    <main id="conteudo">
       <section class="hero">
         <div class="container hero-content">
           <div class="hero-text">
-            <p class="eyebrow">Rotina inteligente</p>
-            <h1>Uma rotina mais organizada, acessível e inclusiva.</h1>
+            <p class="eyebrow"><span></span> Planejamento inclusivo</p>
+            <p class="hero-kicker">Uma rotina clara começa aqui</p>
+            <h1>Organize o dia com mais <em>clareza</em> e autonomia.</h1>
             <p class="lead">
-              O Incluir+ ajuda a estruturar atividades, horários e compromissos de
-              forma clara e personalizada, promovendo previsibilidade e autonomia.
+              Uma agenda visual e acolhedora para transformar compromissos em uma
+              sequência mais previsível, compreensível e tranquila.
             </p>
             <div class="actions">
-              <a class="btn btn-primary" href="agenda.html">Acessar agenda</a>
-              <a
-                class="btn btn-ghost"
-                href="https://blog.cordvida.com.br/agenda-para-criancas-o-que-e-melhor-ocupa-las-ou-deixa-las-livres/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Saiba mais
-              </a>
+              <a class="btn btn-primary" href="agenda.html">Organizar minha rotina <span aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href="#sobre">Conhecer a proposta</a>
+            </div>
+            <div class="trust-line" aria-label="Destaques do Incluir+">
+              <div><strong>01</strong><span>Visão visual<br />do dia</span></div>
+              <div><strong>02</strong><span>Alertas<br />personalizados</span></div>
+              <div><strong>03</strong><span>Ritmo que<br />acolhe</span></div>
             </div>
           </div>
 
           <div class="hero-visual">
+            <div class="visual-label"><span></span> VISÃO DA ROTINA</div>
+            <div class="floating-card floating-card-top"><span>◷</span><div><small>Próxima atividade</small><strong>Hora da leitura</strong></div></div>
+            <div class="floating-card floating-card-bottom"><span>✓</span><div><small>Etapa concluída</small><strong>Muito bem!</strong></div></div>
             <img
-              src="TEA.jpeg"
-              alt="Ilustração de uma criança abraçando peças de quebra-cabeça para representar organização, rotina e acolhimento."
+              src="hero-illustration.svg"
+              alt="Ilustração de uma agenda visual com atividades organizadas ao longo do dia, representando rotina, clareza e acolhimento."
+              width="720"
+              height="720"
             />
           </div>
         </div>
@@ -60,41 +69,69 @@
 
       <section id="sobre" class="about">
         <div class="container">
-          <h2>Sobre o Incluir+</h2>
-          <p>
+          <div class="section-heading"><p class="eyebrow"><span></span> Sobre o Incluir+</p><h2>Planejar também é uma forma de cuidar.</h2><p class="section-intro">Uma ferramenta serena, pensada para tornar a rotina mais explícita sem perder humanidade.</p></div>
+          <div class="about-grid"><p>
             O Incluir+ é uma agenda virtual inclusiva desenvolvida para auxiliar na
             organização da rotina de crianças com TEA e outras deficiências. A
             plataforma permite organizar horários, atividades e compromissos de forma
             simples, visual e personalizada, contribuindo para uma rotina mais
             previsível e para o desenvolvimento da autonomia.
-          </p>
+          </p><div class="about-highlight"><span>“</span><p>Mais previsibilidade para a rotina. Mais autonomia para quem vive cada momento.</p></div></div>
+        </div>
+      </section>
+
+      <section class="workflow" aria-labelledby="workflow-title">
+        <div class="container workflow-layout">
+          <div class="workflow-intro">
+            <p class="eyebrow"><span></span> Um fluxo simples</p>
+            <h2 id="workflow-title">Menos decisões de uma vez. Mais confiança para seguir.</h2>
+            <p>Da criação ao alerta, cada detalhe foi organizado para reduzir a sobrecarga e apoiar a independência.</p>
+          </div>
+          <ol class="steps">
+            <li><span>01</span><div><h3>Defina o momento</h3><p>Escolha a atividade, a data e o horário que fazem sentido para a rotina.</p></div></li>
+            <li><span>02</span><div><h3>Visualize com calma</h3><p>Apresente um compromisso por vez, com informações fáceis de reconhecer.</p></div></li>
+            <li><span>03</span><div><h3>Siga no seu ritmo</h3><p>Use alertas suaves e referências visuais para avançar com segurança.</p></div></li>
+          </ol>
         </div>
       </section>
 
       <section id="beneficios" class="features">
         <div class="container">
-          <h2>Benefícios</h2>
+          <div class="section-heading"><p class="eyebrow"><span></span> Por que funciona</p><h2>Uma interface que respeita a atenção de quem usa.</h2></div>
           <div class="cards">
             <article class="card">
-              <h3>Organização</h3>
-              <p>Estrutura tarefas e compromissos em um só lugar, com menos confusão.</p>
+              <span class="feature-icon">⌘</span><span class="feature-number">01</span>
+              <h3>Organização visível</h3>
+              <p>Atividades, horários e observações organizados em uma leitura direta.</p>
             </article>
             <article class="card">
-              <h3>Previsibilidade</h3>
-              <p>Cria rotinas mais claras e tranquilas para o dia a dia da família.</p>
+              <span class="feature-icon">◷</span><span class="feature-number">02</span>
+              <h3>Previsibilidade real</h3>
+              <p>Uma sequência consistente para antecipar o que acontece agora e depois.</p>
             </article>
             <article class="card">
-              <h3>Autonomia</h3>
-              <p>Ajuda na construção de hábitos e na participação ativa da criança.</p>
+              <span class="feature-icon">✦</span><span class="feature-number">03</span>
+              <h3>Autonomia gradual</h3>
+              <p>Pequenos apoios que incentivam participação e construção de hábitos.</p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section class="closing-cta">
+        <div class="container cta-panel">
+          <div>
+            <p class="eyebrow"><span></span> Comece com calma</p>
+            <h2>A próxima parte da rotina pode ser mais leve.</h2>
+          </div>
+          <a class="btn btn-light" href="agenda.html">Criar um compromisso <span>→</span></a>
         </div>
       </section>
     </main>
 
     <footer class="footer">
       <div class="container">
-        <p>Incluir+ • Rotina mais acessível para todos.</p>
+        <p><strong>Incluir+</strong> <span>•</span> Rotina mais acessível para todos.</p>
       </div>
     </footer>
   </body>

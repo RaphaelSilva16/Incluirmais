@@ -9,30 +9,42 @@ const editCurrentTaskBtn = document.getElementById('edit-current-task');
 const deleteCurrentTaskBtn = document.getElementById('delete-current-task');
 const alertColorInput = document.getElementById('alert-color');
 const alarmSoundSelect = document.getElementById('alarm-sound');
+const previewAlarmBtn = document.getElementById('preview-alarm');
 const manualAlertBtn = document.getElementById('manual-alert-btn');
 const dismissAlarmBtn = document.getElementById('dismiss-alarm-btn');
+const taskDateInput = document.getElementById('task-date');
+const calendarMonth = document.getElementById('calendar-month');
+const calendarDays = document.getElementById('calendar-days');
+const selectedDateLabel = document.getElementById('selected-date-label');
+const calendarPrevBtn = document.getElementById('calendar-prev');
+const calendarNextBtn = document.getElementById('calendar-next');
+const selectedColorLabel = document.getElementById('selected-color-label');
+const colorPresetButtons = document.querySelectorAll('.color-preset');
 
 const weekdayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const monthFormatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
+const fullDateFormatter = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+let calendarView = new Date();
 
 let tasks = [
   {
     id: 1,
     title: 'Acordar e arrumar o quarto',
-    day: 'Segunda',
+    date: getNextDateForWeekday(1),
     time: '07:30',
     notes: 'Tomar café, escovar os dentes e organizar a mochila.'
   },
   {
     id: 2,
     title: 'Escola',
-    day: 'Segunda',
+    date: getNextDateForWeekday(1),
     time: '08:15',
     notes: 'Chegada na escola e organização da rotina da manhã.'
   },
   {
     id: 3,
     title: 'Leitura',
-    day: 'Quarta',
+    date: getNextDateForWeekday(3),
     time: '15:00',
     notes: 'Ler 2 histórias com calma e conversar sobre elas.'
   }
@@ -46,17 +58,41 @@ let manualAlertTimer = null;
 let silencedAlarmUntil = 0;
 let silencedAlarmTaskId = null;
 let alarmAudioContext = null;
-let alarmOscillator = null;
-let alarmGainNode = null;
+let alarmLoopTimer = null;
 
-const alarmNoteFrequencies = {
-  C4: 261.63,
-  D4: 293.66,
-  E4: 329.63,
-  G4: 392.0,
-  A4: 440.0,
-  B4: 493.88,
-  C5: 523.25
+const calmAlarmPatterns = {
+  'soft-bells': {
+    notes: [523.25, 659.25, 783.99],
+    spacing: 0.32,
+    duration: 1.7,
+    wave: 'sine'
+  },
+  'warm-chime': {
+    notes: [392.0, 493.88, 587.33],
+    spacing: 0.38,
+    duration: 1.9,
+    wave: 'sine'
+  },
+  'gentle-piano': {
+    notes: [261.63, 329.63, 392.0, 523.25],
+    spacing: 0.26,
+    duration: 1.25,
+    wave: 'triangle'
+  },
+  'calm-wave': {
+    notes: [440.0, 493.88, 440.0],
+    spacing: 0.52,
+    duration: 2.2,
+    wave: 'sine'
+  }
+};
+
+const alertColorNames = {
+  '#ff7a7a': 'Rosa suave',
+  '#e7a64c': 'Amarelo dourado',
+  '#4f9d92': 'Verde água',
+  '#6387d8': 'Azul sereno',
+  '#9a72bf': 'Lilás'
 };
 
 function normalizeHexColor(value) {
@@ -82,6 +118,16 @@ function updateAlertColor(themeColor) {
     alertColorInput.value = normalizedColor;
   }
 
+  colorPresetButtons.forEach((button) => {
+    const isSelected = button.dataset.color.toLowerCase() === normalizedColor.toLowerCase();
+    button.classList.toggle('is-selected', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  });
+
+  if (selectedColorLabel) {
+    selectedColorLabel.textContent = `Cor selecionada: ${alertColorNames[normalizedColor.toLowerCase()] || 'Personalizada'}`;
+  }
+
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('incluir-alert-color', normalizedColor);
   }
@@ -91,17 +137,90 @@ function getCurrentDayName() {
   return weekdayNames[new Date().getDay()];
 }
 
+function dateToInputValue(date) {
+  const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return offsetDate.toISOString().slice(0, 10);
+}
+
+function parseLocalDate(value) {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function getNextDateForWeekday(weekday) {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + ((weekday - date.getDay() + 7) % 7));
+  return dateToInputValue(date);
+}
+
+function getTaskDateLabel(task) {
+  if (task.date) return fullDateFormatter.format(parseLocalDate(task.date));
+  return task.day || '';
+}
+
+function updateSelectedDateLabel() {
+  if (!taskDateInput?.value || !selectedDateLabel) return;
+  selectedDateLabel.textContent = `Selecionado: ${fullDateFormatter.format(parseLocalDate(taskDateInput.value))}`;
+}
+
+function renderCalendar() {
+  if (!calendarMonth || !calendarDays || !taskDateInput) return;
+  const viewYear = calendarView.getFullYear();
+  const viewMonth = calendarView.getMonth();
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const today = dateToInputValue(new Date());
+
+  calendarMonth.textContent = monthFormatter.format(calendarView);
+  calendarDays.innerHTML = '';
+
+  for (let blank = 0; blank < firstWeekday; blank += 1) {
+    const spacer = document.createElement('span');
+    spacer.className = 'calendar-empty';
+    spacer.setAttribute('aria-hidden', 'true');
+    calendarDays.appendChild(spacer);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = new Date(viewYear, viewMonth, day);
+    const dateValue = dateToInputValue(date);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'calendar-day';
+    button.textContent = String(day);
+    button.setAttribute('role', 'gridcell');
+    button.setAttribute('aria-label', fullDateFormatter.format(date));
+    button.classList.toggle('is-today', dateValue === today);
+    button.classList.toggle('is-selected', dateValue === taskDateInput.value);
+    button.setAttribute('aria-pressed', String(dateValue === taskDateInput.value));
+    button.addEventListener('click', () => {
+      taskDateInput.value = dateValue;
+      updateSelectedDateLabel();
+      renderCalendar();
+    });
+    calendarDays.appendChild(button);
+  }
+}
+
+function selectCalendarDate(value) {
+  taskDateInput.value = value;
+  calendarView = parseLocalDate(value);
+  updateSelectedDateLabel();
+  renderCalendar();
+}
+
 function getCurrentMinutes() {
   const now = new Date();
   return now.getHours() * 60 + now.getMinutes();
 }
 
 function checkActiveTask() {
-  const currentDay = getCurrentDayName();
+  const currentDate = dateToInputValue(new Date());
   const currentMinutes = getCurrentMinutes();
 
   const taskDueNow = tasks.find((task) => {
-    if (task.day !== currentDay) return false;
+    if (task.date ? task.date !== currentDate : task.day !== getCurrentDayName()) return false;
     return Math.abs(parseTime(task.time) - currentMinutes) <= 1;
   });
 
@@ -135,58 +254,7 @@ function sortedTasks() {
   return [...tasks].sort((a, b) => parseTime(a.time) - parseTime(b.time));
 }
 
-function syncAlarmAudio() {
-  const shouldPlay = Boolean(activeTaskId);
-
-  if (!shouldPlay) {
-    if (alarmGainNode && alarmAudioContext) {
-      alarmGainNode.gain.cancelScheduledValues(alarmAudioContext.currentTime);
-      alarmGainNode.gain.setTargetAtTime(0.0001, alarmAudioContext.currentTime, 0.05);
-    }
-
-    if (alarmOscillator && alarmAudioContext && alarmGainNode) {
-      const oscillatorToStop = alarmOscillator;
-      const gainToStop = alarmGainNode;
-
-      setTimeout(() => {
-        try {
-          oscillatorToStop.stop();
-        } catch (error) {
-          // ignorar se já foi parado
-        }
-
-        if (oscillatorToStop) {
-          try {
-            oscillatorToStop.disconnect();
-          } catch (error) {
-            // ignorar desconexão em objetos já limpos
-          }
-        }
-
-        if (gainToStop) {
-          try {
-            gainToStop.disconnect();
-          } catch (error) {
-            // ignorar desconexão em objetos já limpos
-          }
-        }
-
-        if (alarmOscillator === oscillatorToStop) {
-          alarmOscillator = null;
-        }
-
-        if (alarmGainNode === gainToStop) {
-          alarmGainNode = null;
-        }
-      }, 120);
-    }
-
-    return;
-  }
-
-  const selectedNote = alarmSoundSelect?.value || 'C4';
-  const selectedFrequency = alarmNoteFrequencies[selectedNote] || alarmNoteFrequencies.C4;
-
+function playCalmAlarm() {
   const AudioCtor = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtor) return;
 
@@ -195,22 +263,45 @@ function syncAlarmAudio() {
   }
 
   if (alarmAudioContext.state === 'suspended') {
-    alarmAudioContext.resume();
+    alarmAudioContext.resume().catch(() => {});
   }
 
-  if (!alarmOscillator) {
-    alarmOscillator = alarmAudioContext.createOscillator();
-    alarmGainNode = alarmAudioContext.createGain();
-    alarmOscillator.type = 'sine';
-    alarmGainNode.gain.value = 0.0001;
-    alarmOscillator.connect(alarmGainNode);
-    alarmGainNode.connect(alarmAudioContext.destination);
-    alarmOscillator.start();
+  const selectedPattern = calmAlarmPatterns[alarmSoundSelect?.value] || calmAlarmPatterns['soft-bells'];
+  const startTime = alarmAudioContext.currentTime + 0.03;
+
+  selectedPattern.notes.forEach((frequency, index) => {
+    const noteStart = startTime + index * selectedPattern.spacing;
+    const noteEnd = noteStart + selectedPattern.duration;
+    const oscillator = alarmAudioContext.createOscillator();
+    const gain = alarmAudioContext.createGain();
+
+    oscillator.type = selectedPattern.wave;
+    oscillator.frequency.setValueAtTime(frequency, noteStart);
+    gain.gain.setValueAtTime(0.0001, noteStart);
+    gain.gain.exponentialRampToValueAtTime(0.075, noteStart + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+    oscillator.connect(gain);
+    gain.connect(alarmAudioContext.destination);
+    oscillator.start(noteStart);
+    oscillator.stop(noteEnd + 0.05);
+  });
+}
+
+function syncAlarmAudio() {
+  const shouldPlay = Boolean(activeTaskId);
+
+  if (!shouldPlay) {
+    if (alarmLoopTimer) {
+      clearInterval(alarmLoopTimer);
+      alarmLoopTimer = null;
+    }
+    return;
   }
 
-  alarmOscillator.frequency.setValueAtTime(selectedFrequency, alarmAudioContext.currentTime);
-  alarmGainNode.gain.cancelScheduledValues(alarmAudioContext.currentTime);
-  alarmGainNode.gain.setTargetAtTime(0.18, alarmAudioContext.currentTime, 0.08);
+  if (!alarmLoopTimer) {
+    playCalmAlarm();
+    alarmLoopTimer = setInterval(playCalmAlarm, 7000);
+  }
 }
 
 function renderAgendaPage() {
@@ -252,12 +343,12 @@ function renderAgendaPage() {
     <div class="page-content ${isActive ? 'task-alert' : ''}">
       <p class="page-label">${periodLabel}</p>
       <h2>${task.time}</h2>
-      <p class="page-time">${task.day}</p>
+      <p class="page-time">${getTaskDateLabel(task)}</p>
 
       <div class="page-box">
         <span class="page-tag">Atividade</span>
         <h3>${task.title}</h3>
-        <p><strong>Dia:</strong> ${task.day}</p>
+        <p><strong>Dia:</strong> ${getTaskDateLabel(task)}</p>
         <p><strong>Horário:</strong> ${task.time}</p>
         <p>${task.notes || 'Sem observações adicionais.'}</p>
       </div>
@@ -275,21 +366,21 @@ function saveTask(event) {
 
   const formData = new FormData(form);
   const title = formData.get('title').trim();
-  const day = formData.get('day');
+  const date = formData.get('date');
   const time = formData.get('time');
   const notes = formData.get('notes').trim();
 
-  if (!title || !day || !time) return;
+  if (!title || !date || !time) return;
 
   if (editTaskId !== null) {
     tasks = tasks.map((task) =>
-      task.id === editTaskId ? { ...task, title, day, time, notes } : task
+      task.id === editTaskId ? { ...task, title, date, time, notes } : task
     );
   } else {
     tasks.push({
       id: Date.now(),
       title,
-      day,
+      date,
       time,
       notes
     });
@@ -303,8 +394,9 @@ function saveTask(event) {
   }
 
   form.reset();
+  selectCalendarDate(dateToInputValue(new Date()));
   editTaskId = null;
-  formTitle.textContent = 'Adicionar compromisso';
+  formTitle.textContent = 'Planeje um momento';
   cancelEditBtn.classList.add('hidden');
   renderAgendaPage();
 }
@@ -314,11 +406,11 @@ function handleEditTask(taskId) {
   if (!task) return;
 
   editTaskId = taskId;
-  formTitle.textContent = 'Editar compromisso';
+  formTitle.textContent = 'Ajustar compromisso';
   cancelEditBtn.classList.remove('hidden');
 
   document.getElementById('task-title').value = task.title;
-  document.getElementById('task-day').value = task.day;
+  selectCalendarDate(task.date || getNextDateForWeekday(weekdayNames.indexOf(task.day)));
   document.getElementById('task-time').value = task.time;
   document.getElementById('task-notes').value = task.notes;
 
@@ -334,7 +426,7 @@ function handleDeleteTask(taskId) {
   if (editTaskId === taskId) {
     editTaskId = null;
     form.reset();
-    formTitle.textContent = 'Adicionar compromisso';
+    formTitle.textContent = 'Planeje um momento';
     cancelEditBtn.classList.add('hidden');
   }
 
@@ -348,7 +440,8 @@ function handleDeleteTask(taskId) {
 function cancelEdit() {
   editTaskId = null;
   form.reset();
-  formTitle.textContent = 'Adicionar compromisso';
+  selectCalendarDate(dateToInputValue(new Date()));
+  formTitle.textContent = 'Planeje um momento';
   cancelEditBtn.classList.add('hidden');
 }
 
@@ -428,12 +521,33 @@ deleteCurrentTaskBtn.addEventListener('click', deleteCurrentTask);
 manualAlertBtn.addEventListener('click', triggerManualAlert);
 dismissAlarmBtn.addEventListener('click', dismissAlarm);
 alarmSoundSelect?.addEventListener('change', () => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('incluir-alarm-sound', alarmSoundSelect.value);
+  }
+
   if (activeTaskId) {
+    clearInterval(alarmLoopTimer);
+    alarmLoopTimer = null;
     syncAlarmAudio();
   }
 });
+previewAlarmBtn?.addEventListener('click', () => {
+  playCalmAlarm();
+  previewAlarmBtn.textContent = '✓ Som ativado';
+  window.setTimeout(() => {
+    previewAlarmBtn.textContent = '▷ Ouvir som';
+  }, 1800);
+});
 form.addEventListener('submit', saveTask);
 cancelEditBtn.addEventListener('click', cancelEdit);
+calendarPrevBtn?.addEventListener('click', () => {
+  calendarView = new Date(calendarView.getFullYear(), calendarView.getMonth() - 1, 1);
+  renderCalendar();
+});
+calendarNextBtn?.addEventListener('click', () => {
+  calendarView = new Date(calendarView.getFullYear(), calendarView.getMonth() + 1, 1);
+  renderCalendar();
+});
 
 if (alertColorInput) {
   const savedColor = typeof localStorage !== 'undefined' ? localStorage.getItem('incluir-alert-color') : null;
@@ -444,8 +558,23 @@ if (alertColorInput) {
   });
 }
 
+colorPresetButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    updateAlertColor(button.dataset.color);
+    renderAgendaPage();
+  });
+});
+
+if (alarmSoundSelect && typeof localStorage !== 'undefined') {
+  const savedAlarmSound = localStorage.getItem('incluir-alarm-sound');
+  if (savedAlarmSound && calmAlarmPatterns[savedAlarmSound]) {
+    alarmSoundSelect.value = savedAlarmSound;
+  }
+}
+
 setInterval(() => {
   renderAgendaPage();
 }, 15000);
 
 renderAgendaPage();
+selectCalendarDate(dateToInputValue(new Date()));
