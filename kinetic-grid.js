@@ -66,13 +66,13 @@
   const draw = (now) => {
     const isDeepTheme = document.body.classList.contains('dark-theme');
     const palette = isDeepTheme
-      ? { background: '#071513', active: [126, 208, 196], ripple: '126,208,196' }
-      : { background: '#101824', active: [82, 162, 255], ripple: '100,180,255' };
+      ? { background: '#050506', base: [255, 255, 255], active: [227, 175, 53], ripple: '227,175,53', dots: 'rgba(255,255,255,0.05)' }
+      : { background: '#f8f9fa', base: [191, 193, 197], active: [26, 115, 232], ripple: '26,115,232', dots: 'rgba(60,64,67,0.045)' };
     context.clearRect(0, 0, width, height);
     context.fillStyle = palette.background;
     context.fillRect(0, 0, width, height);
 
-    context.fillStyle = 'rgba(255,255,255,0.05)';
+    context.fillStyle = palette.dots;
     for (let x = dotSpacing / 2; x < width; x += dotSpacing) {
       for (let y = dotSpacing / 2; y < height; y += dotSpacing) {
         context.beginPath();
@@ -103,7 +103,7 @@
       context.beginPath();
       context.moveTo(first.x, first.y);
       context.lineTo(second.x, second.y);
-      context.strokeStyle = `rgba(${Math.round(255 + (palette.active[0] - 255) * active)},${Math.round(255 + (palette.active[1] - 255) * active)},${Math.round(255 + (palette.active[2] - 255) * active)},${(0.13 + active * 0.77).toFixed(3)})`;
+      context.strokeStyle = `rgba(${palette.base.map((channel, index) => Math.round(channel + (palette.active[index] - channel) * active)).join(',')},${(0.13 + active * 0.77).toFixed(3)})`;
       context.lineWidth = 0.8 + active * 0.7;
       context.stroke();
     };
@@ -119,7 +119,7 @@
       const active = point.proximity * point.proximity * (3 - 2 * point.proximity);
       context.beginPath();
       context.arc(point.x, point.y, 1.8 + active * 1.4, 0, Math.PI * 2);
-      context.fillStyle = `rgba(${Math.round(255 + (palette.active[0] - 255) * active)},${Math.round(255 + (palette.active[1] - 255) * active)},${Math.round(255 + (palette.active[2] - 255) * active)},${(0.2 + active * 0.8).toFixed(3)})`;
+      context.fillStyle = `rgba(${palette.base.map((channel, index) => Math.round(channel + (palette.active[index] - channel) * active)).join(',')},${(0.2 + active * 0.8).toFixed(3)})`;
       context.fill();
     });
 

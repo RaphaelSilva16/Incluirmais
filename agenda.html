@@ -90,9 +90,14 @@
                 </div>
 
                 <div class="field-group time-field">
-                  <label for="task-time">Horário</label>
-                  <input id="task-time" name="time" type="time" step="60" required />
-                  <small class="field-hint">Escolha a hora e os minutos que preferir.</small>
+                  <label class="time-label" for="task-hour">Horário</label>
+                  <input id="task-time" name="time" type="hidden" />
+                  <div class="time-entry" role="group" aria-label="Horário no formato de 24 horas">
+                    <input id="task-hour" class="time-part-input" type="text" inputmode="numeric" maxlength="2" placeholder="__" autocomplete="off" required aria-label="Hora, de 00 a 23" aria-describedby="time-hint" />
+                    <span class="time-separator" aria-hidden="true">:</span>
+                    <input id="task-minute" class="time-part-input" type="text" inputmode="numeric" maxlength="2" placeholder="__" autocomplete="off" required aria-label="Minuto, de 00 a 59" aria-describedby="time-hint" />
+                  </div>
+                  <small id="time-hint" class="field-hint">Digite a hora e os minutos. Exemplo: 14:30 (24 horas).</small>
                 </div>
               </div>
 
@@ -120,7 +125,7 @@
                     id="alert-color"
                     name="alertColor"
                     type="color"
-                    value="#ff7a7a"
+                    value="#d93025"
                     aria-label="Escolha a cor do alerta da agenda"
                     class="alert-color-input"
                   />

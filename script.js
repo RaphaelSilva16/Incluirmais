@@ -20,6 +20,35 @@ const calendarPrevBtn = document.getElementById('calendar-prev');
 const calendarNextBtn = document.getElementById('calendar-next');
 const selectedColorLabel = document.getElementById('selected-color-label');
 const colorPresetButtons = document.querySelectorAll('.color-preset');
+const taskTimeInput = document.getElementById('task-time');
+const taskHourSelect = document.getElementById('task-hour');
+const taskMinuteSelect = document.getElementById('task-minute');
+
+function syncTaskTime() {
+  const hour = taskHourSelect.value.trim();
+  const minute = taskMinuteSelect.value.trim();
+  const hourValue = Number(hour);
+  const minuteValue = Number(minute);
+  const hourValid = /^\d{1,2}$/.test(hour) && hourValue >= 0 && hourValue <= 23;
+  const minuteValid = /^\d{1,2}$/.test(minute) && minuteValue >= 0 && minuteValue <= 59;
+
+  taskHourSelect.setCustomValidity(hour && !hourValid ? 'Informe uma hora entre 00 e 23.' : '');
+  taskMinuteSelect.setCustomValidity(minute && !minuteValid ? 'Informe os minutos entre 00 e 59.' : '');
+  taskTimeInput.value = hourValid && minuteValid
+    ? `${String(hourValue).padStart(2, '0')}:${String(minuteValue).padStart(2, '0')}`
+    : '';
+}
+
+function normalizeTimePart(input) {
+  const value = input.value.trim();
+  if (/^\d{1,2}$/.test(value)) input.value = value.padStart(2, '0');
+  syncTaskTime();
+}
+
+taskHourSelect.addEventListener('input', syncTaskTime);
+taskMinuteSelect.addEventListener('input', syncTaskTime);
+taskHourSelect.addEventListener('blur', () => normalizeTimePart(taskHourSelect));
+taskMinuteSelect.addEventListener('blur', () => normalizeTimePart(taskMinuteSelect));
 
 const weekdayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 const monthFormatter = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' });
@@ -88,6 +117,7 @@ const calmAlarmPatterns = {
 };
 
 const alertColorNames = {
+  '#d93025': 'Vermelho',
   '#ff7a7a': 'Rosa suave',
   '#e7a64c': 'Amarelo dourado',
   '#4f9d92': 'Verde água',
@@ -96,8 +126,8 @@ const alertColorNames = {
 };
 
 function normalizeHexColor(value) {
-  const safeValue = (value || '#ff7a7a').trim();
-  return /^#[0-9a-fA-F]{6}$/.test(safeValue) ? safeValue : '#ff7a7a';
+  const safeValue = (value || '#d93025').trim();
+  return /^#[0-9a-fA-F]{6}$/.test(safeValue) ? safeValue : '#d93025';
 }
 
 function hexToRgb(value) {
@@ -394,6 +424,7 @@ function saveTask(event) {
   }
 
   form.reset();
+  syncTaskTime();
   selectCalendarDate(dateToInputValue(new Date()));
   editTaskId = null;
   formTitle.textContent = 'Planeje um momento';
@@ -411,7 +442,10 @@ function handleEditTask(taskId) {
 
   document.getElementById('task-title').value = task.title;
   selectCalendarDate(task.date || getNextDateForWeekday(weekdayNames.indexOf(task.day)));
-  document.getElementById('task-time').value = task.time;
+  const [taskHour, taskMinute] = task.time.split(':');
+  taskHourSelect.value = taskHour;
+  taskMinuteSelect.value = taskMinute;
+  syncTaskTime();
   document.getElementById('task-notes').value = task.notes;
 
   window.scrollTo({
@@ -551,7 +585,8 @@ calendarNextBtn?.addEventListener('click', () => {
 
 if (alertColorInput) {
   const savedColor = typeof localStorage !== 'undefined' ? localStorage.getItem('incluir-alert-color') : null;
-  updateAlertColor(savedColor || '#ff7a7a');
+  const themeDefaultColor = document.body.classList.contains('dark-theme') ? '#e3af35' : '#d93025';
+  updateAlertColor(savedColor || themeDefaultColor);
   alertColorInput.addEventListener('input', (event) => {
     updateAlertColor(event.target.value);
     renderAgendaPage();
